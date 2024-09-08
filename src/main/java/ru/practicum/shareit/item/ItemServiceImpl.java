@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @Service
 public class ItemServiceImpl implements ItemService {
-    ItemRepository itemRepository;
+  private final ItemRepository itemRepository;
 
     @Override
     public Item addItem(Item item) {

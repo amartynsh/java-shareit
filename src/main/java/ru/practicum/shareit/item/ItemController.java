@@ -19,8 +19,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/items")
 public class ItemController {
-    UserService userService;
-    ItemService itemService;
+    private final UserService userService;
+    private final ItemService itemService;
 
     @PostMapping
     public ItemDto createItem(@Valid @RequestBody ItemDto itemDto, @RequestHeader("X-Sharer-User-Id") int userId) {

@@ -15,7 +15,7 @@ import ru.practicum.shareit.user.dto.UserMapper;
 @Validated
 public class UserController {
 
-    UserService userService;
+    private final UserService userService;
 
 
     @PostMapping

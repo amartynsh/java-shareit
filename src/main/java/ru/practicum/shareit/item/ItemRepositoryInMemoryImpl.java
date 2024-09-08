@@ -12,8 +12,8 @@ import java.util.Map;
 @Slf4j
 @Repository
 public class ItemRepositoryInMemoryImpl implements ItemRepository {
-    Map<Integer, Item> items = new HashMap<>();
-    int count = 1;
+    private final Map<Integer, Item> items = new HashMap<>();
+    private int count = 1;
 
     @Override
     public Item createItem(Item item) {

@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exceptions.DublicateException;
 import ru.practicum.shareit.exceptions.NotFoundException;
@@ -10,11 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @Repository
 public class UserRepositoryInmemoryImpl implements UserRepository {
-    private static final Logger log = LoggerFactory.getLogger(UserRepositoryInmemoryImpl.class);
-    Map<Integer, User> users = new HashMap<>();
-    int count = 1;
+    private final Map<Integer, User> users = new HashMap<>();
+    private int count = 1;
 
     @Override
     public User add(User user) {
@@ -37,7 +36,6 @@ public class UserRepositoryInmemoryImpl implements UserRepository {
     @Override
     public User update(User user) {
         users.put(user.getId(), user);
-
         return user;
     }
 
@@ -60,6 +58,4 @@ public class UserRepositoryInmemoryImpl implements UserRepository {
     private int nextId() {
         return count++;
     }
-
-
 }

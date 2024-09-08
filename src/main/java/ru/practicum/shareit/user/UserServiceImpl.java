@@ -13,7 +13,7 @@ import ru.practicum.shareit.user.dto.UserMapper;
 public class UserServiceImpl implements UserService {
 
 
-    UserRepository repository;
+    private final UserRepository repository;
 
     @Override
     public User addUser(User user) {
