@@ -1,4 +1,5 @@
 package ru.practicum.shareit.exceptions;
+
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,7 @@ public class ExceptionsHandler {
         log.debug("Произошла ошибка handlerThrowable. message: {}, Trace: {}", e.getMessage(), e.getStackTrace());
         return new ErrorResponse(e.getMessage());
     }
+
     //Проверка @Validated
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
