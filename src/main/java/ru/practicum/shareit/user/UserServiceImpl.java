@@ -12,21 +12,21 @@ import ru.practicum.shareit.user.dto.UserMapper;
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
-
     private final UserRepository repository;
 
     @Override
-    public User addUser(User user) {
+    public UserDto addUser(UserDto userDto) {
+        User user = UserMapper.toUser(userDto);
         repository.emailIsUsed(user);
-        return repository.add(user);
+        return UserMapper.toUserDto(repository.add(user));
     }
 
     @Override
-    public User getUser(int id) {
+    public UserDto getUser(int id) {
         User user = repository.getUserById(id)
                 .orElseThrow(() -> new NotFoundException("User with this id not found"));
         log.info("Получили из репозитория пользователя = {} ", user);
-        return user;
+        return UserMapper.toUserDto(user);
     }
 
     @Override
@@ -50,5 +50,4 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(int id) {
         repository.delete(id);
     }
-
 }

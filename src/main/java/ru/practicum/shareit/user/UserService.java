@@ -3,9 +3,9 @@ package ru.practicum.shareit.user;
 import ru.practicum.shareit.user.dto.UserDto;
 
 public interface UserService {
-    User addUser(User user);
+    UserDto addUser(UserDto userDto);
 
-    User getUser(int id);
+    UserDto getUser(int id);
 
     UserDto updateUser(UserDto userDto);
 
