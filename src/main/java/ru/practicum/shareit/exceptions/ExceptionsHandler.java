@@ -1,5 +1,6 @@
 package ru.practicum.shareit.exceptions;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,14 @@ public class ExceptionsHandler {
         log.debug("Произошла ошибка NotFoundException. message: {}, Trace: {}", e.getMessage(), e.getStackTrace());
         return new ErrorResponse(e.getMessage());
     }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handlerEntityNotFoundException(EntityNotFoundException e) {
+        log.debug("Произошла ошибка EntityNotFoundException. message: {}, Trace: {}", e.getMessage(), e.getStackTrace());
+        return new ErrorResponse(e.getMessage());
+    }
+
+
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)

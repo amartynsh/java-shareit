@@ -18,36 +18,38 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
 
     @Override
-    public ItemDto addItem(ItemDto itemDto, int userId) {
-        Item item = ItemMapper.toItem(itemDto, UserMapper.toUser(userService.getUser(userId)));
+    public ItemDto addItem(ItemDto itemDto, long userId) {
+        Item item = ItemMapper.toItem(itemDto, UserMapper.toUser(userService.getById(userId)));
         checkCreatedItem(item);
-        return ItemMapper.toDto(itemRepository.createItem(item));
+        return ItemMapper.toDto(itemRepository.save(item));
     }
 
     @Override
-    public ItemDto getItemById(int id) {
-        return ItemMapper.toDto(itemRepository.getItem(id));
+    public ItemDto getItemById(long id) {
+        return ItemMapper.toDto(itemRepository.getReferenceById(id));
     }
 
     @Override
-    public ItemDto updateItem(ItemDto itemDto, int userId) {
-        Item item = ItemMapper.toItem(itemDto,UserMapper.toUser(userService.getUser(userId)));
+    public ItemDto updateItem(ItemDto itemDto, long userId) {
+        Item item = ItemMapper.toItem(itemDto,UserMapper.toUser(userService.getById(userId)));
         checkOwner(item);
         fillLostValues(item);
-        return ItemMapper.toDto(itemRepository.updateItem(item));
+        return ItemMapper.toDto(itemRepository.save(item));
     }
 
     @Override
-    public List<ItemDto> getItemsByOwnerId(int id) {
-        return itemRepository.getItemsByOwner(id).stream().map(ItemMapper::toDto).toList();
+    public List<ItemDto> getItemsByOwnerId(long id) {
+        return itemRepository.getItemsByOwnerId(id).stream().map(ItemMapper::toDto).toList();
     }
 
     @Override
     public List<ItemDto> findItemByText(String text) {
-        if (text.isBlank()) {
+       if (text.isBlank()) {
             return List.of();
         }
-        return itemRepository.findItemByText(text).stream().map(ItemMapper::toDto).toList();
+      String lowerCaseText = text.toLowerCase();
+        return itemRepository.findByNameOrDescriptionAllIgnoreCaseContaining(lowerCaseText, lowerCaseText).stream().map(ItemMapper::toDto).toList();
+
     }
 
     private void fillLostValues(Item item) {
@@ -79,14 +81,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void checkOwner(Item item) {
-        Item itemExisting = itemRepository.getItem(item.getId());
+        Item itemExisting = itemRepository.getReferenceById(item.getId());
         if (itemExisting.getOwner().getId() != item.getOwner().getId()) {
             throw new ValidationException("Владелец предмета" + itemExisting.getOwner() + " и пользователя" +
                     item.getOwner() + " не совпадают");
         }
     }
 
-    private Item getItemByIdInternal(int id) {
-        return itemRepository.getItem(id);
+    private Item getItemByIdInternal(long id) {
+        return itemRepository.getReferenceById(id);
     }
 }

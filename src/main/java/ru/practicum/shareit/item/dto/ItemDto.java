@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Data
 public class ItemDto {
-    int id;
+    long id;
     String name;
     String description;
     Boolean available;

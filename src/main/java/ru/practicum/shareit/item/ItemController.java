@@ -19,25 +19,25 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDto createItem(@RequestBody ItemDto itemDto, @RequestHeader("X-Sharer-User-Id") int userId) {
+    public ItemDto createItem(@RequestBody ItemDto itemDto, @RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Обращение на POST /items со значением itemDto {} и X-Sharer-User-Id: {} ", itemDto, userId);
         return itemService.addItem(itemDto, userId);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItem(@PathVariable int itemId) {
+    public ItemDto getItem(@PathVariable long itemId) {
         return itemService.getItemById(itemId);
     }
 
     @GetMapping
-    public List<ItemDto> getItemsByOwnerId(@RequestHeader("X-Sharer-User-Id") int userId) {
+    public List<ItemDto> getItemsByOwnerId(@RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Обращение на GET /items со значением X-Sharer-User-Id: {} ", userId);
         return itemService.getItemsByOwnerId(userId);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@Valid @RequestBody ItemDto itemDto, @RequestHeader("X-Sharer-User-Id") int userId,
-                              @PathVariable int itemId) {
+    public ItemDto updateItem(@Valid @RequestBody ItemDto itemDto, @RequestHeader("X-Sharer-User-Id") long userId,
+                              @PathVariable long itemId) {
         log.info("Обращение на PATCH /items со значением itemDto {} и X-Sharer-User-Id: {} ", itemDto, userId);
         itemDto.setId(itemId);
         return itemService.updateItem(itemDto, userId);
