@@ -26,9 +26,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getById(long id) {
         User user = repository.getReferenceById(id);
-       /* if (user == null) {
-            throw new NotFoundException("Пользователь с id = " + id + " не найден");
-        }*/
         log.info("Получили из репозитория пользователя = {} ", user);
         return UserMapper.toUserDto(user);
     }

@@ -48,7 +48,10 @@ public class ItemServiceImpl implements ItemService {
             return List.of();
         }
       String lowerCaseText = text.toLowerCase();
-        return itemRepository.findByNameOrDescriptionAllIgnoreCaseContaining(lowerCaseText, lowerCaseText).stream().map(ItemMapper::toDto).toList();
+        return itemRepository.findByNameOrDescriptionAllIgnoreCaseContaining(lowerCaseText, lowerCaseText).stream()
+                .filter(item -> item.getAvailable())
+                        .map(ItemMapper::toDto)
+                        .toList();
 
     }
 
