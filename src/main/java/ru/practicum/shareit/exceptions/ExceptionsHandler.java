@@ -20,13 +20,13 @@ public class ExceptionsHandler {
         log.debug("Произошла ошибка NotFoundException. message: {}, Trace: {}", e.getMessage(), e.getStackTrace());
         return new ErrorResponse(e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handlerEntityNotFoundException(EntityNotFoundException e) {
         log.debug("Произошла ошибка EntityNotFoundException. message: {}, Trace: {}", e.getMessage(), e.getStackTrace());
         return new ErrorResponse(e.getMessage());
     }
-
 
 
     @ExceptionHandler
