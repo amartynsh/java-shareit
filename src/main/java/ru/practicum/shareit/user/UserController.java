@@ -41,5 +41,4 @@ public class UserController {
         log.info("Обращение на эндпоинт DELETE /users/{id}");
         userService.deleteUser(id);
     }
-
 }

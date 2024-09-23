@@ -4,10 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.DublicateException;
-import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -34,6 +35,7 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UserDto userDto) {
         log.info("начали обновление пользователя = {} ", userDto);
         User user = repository.getReferenceById(userDto.getId());
+
         log.info("получили из репозиторияпользователя = {} ", user);
         if (userDto.getEmail() == null) {
             log.info("дозаполнили email");
@@ -45,7 +47,8 @@ public class UserServiceImpl implements UserService {
             userDto.setName(user.getName());
         }
         User userToUpdate = UserMapper.toUser(userDto);
-        checkByEmail(user);
+        checkByEmail(userToUpdate);
+
         log.info("Обновление пользователя = {} ", userToUpdate);
         return UserMapper.toUserDto(repository.save(userToUpdate));
     }
@@ -57,9 +60,15 @@ public class UserServiceImpl implements UserService {
     }
 
     private void checkByEmail(User user) {
-        User userByEmail = repository.findByEmail(user.getEmail());
-        if (userByEmail != null && userByEmail.getId() != user.getId()) {
-            throw new DublicateException("User with this email already exists");
+
+        if (user.getEmail().isEmpty() || user.getEmail().isBlank()) {
+            throw new ValidationException("User email is null");
+        }
+        var userByEmail = Optional.ofNullable(repository.findByEmailIgnoreCase(user.getEmail()));
+        if (userByEmail.isPresent()) {
+            if (userByEmail.get().getId() != user.getId()) {
+                throw new DublicateException("User with this email already exists");
+            }
         }
     }
 }
