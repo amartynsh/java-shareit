@@ -3,6 +3,8 @@ package ru.practicum.shareit.booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.dto.DatesDto;
+import ru.practicum.shareit.item.model.Item;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -40,14 +42,14 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByItemIdAndBookerIdAndEndBeforeAndStatus(long itemId, long bookerId,
                                                                    LocalDateTime end, BookingStatus status);
 
-    @Query(" select new ru.practicum.shareit.item.dto.DatesDto(MAX(b.start), MAX(b.end)) " +
+    @Query(" select new ru.practicum.shareit.item.dto.DatesDto (MAX(b.start), MAX(b.end)) " +
             " from Booking b " +
             " join b.item i " +
             " join i.owner o " +
             "where b.start < ?1 " +
             "  and o.id = ?2 " +
             " and i.id =?3 ")
-    List<DatesDto> lastBookings(LocalDateTime date, long ownerId, long itemId);
+    DatesDto lastBookings(LocalDateTime date, long ownerId, long itemId);
 
     @Query(" select new ru.practicum.shareit.item.dto.DatesDto(MIN(b.start), MIN(b.end)) " +
             " from Booking b " +
@@ -56,5 +58,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "where b.start >= ?1 " +
             "  and o.id = ?2 " +
             " and i.id =?3 ")
-    List<DatesDto> nextBookings(LocalDateTime date, long ownerId, long itemId);
+    DatesDto nextBookings(LocalDateTime date, long ownerId, long itemId);
+
+    List<Item> findAllByBookerIdAndItemIdAndStatus(long userId, long itemId, BookingStatus status);
 }

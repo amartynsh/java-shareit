@@ -51,10 +51,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private ItemDatesCommentsDto getItemByIdForOwner(Item item) {
-        List<DatesDto> lastBookings = bookingRepository.lastBookings(LocalDateTime.now(), item.getOwner().getId(), item.getId());
-        List<DatesDto> nextBookings = bookingRepository.nextBookings(LocalDateTime.now(), item.getOwner().getId(), item.getId());
-        DatesDto lastBookDate = lastBookings.stream().max(DatesDto::compareToEnd).get();
-        DatesDto nextBookDate = nextBookings.stream().min(DatesDto::compareToStart).get();
+        DatesDto lastBookDate = bookingRepository.lastBookings(LocalDateTime.now(), item.getOwner().getId(), item.getId());
+        DatesDto nextBookDate = bookingRepository.nextBookings(LocalDateTime.now(), item.getOwner().getId(), item.getId());
         List<CommentResponseDto> commentsDto = commentRepository.findAllByItemId(item.getId()).stream().map(CommentMapper::toCommentResponseDto).toList();
         return ItemMapper.toItemDatesCommentsDto(item, lastBookDate, nextBookDate, commentsDto);
     }
@@ -85,23 +83,18 @@ public class ItemServiceImpl implements ItemService {
                 .filter(item -> item.getAvailable())
                 .map(ItemMapper::toDto)
                 .toList();
-
     }
 
     @Override
     public CommentResponseDto addComment(CommentRequestDto commentRequestDto, long itemId, long userId) {
         Item item = itemRepository.findById(itemId).get();
-        List<Booking> bookings = bookingRepository.findAllByBookerIdAndItemId(userId, item.getId());
 
-        List<Booking> bookingsApproved = bookings.stream()
-                .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED))
-                .toList();
+        List<Booking> bookingsApproved = bookingRepository.findByItemIdAndBookerIdAndEndBeforeAndStatus(itemId, userId, LocalDateTime.now(),
+                BookingStatus.APPROVED);
+
+
         if (bookingsApproved.isEmpty()) {
             throw new ValidationException("Пользователь не бронировал эту вещь");
-        }
-        if (bookingRepository.findByItemIdAndBookerIdAndEndBeforeAndStatus(itemId, userId, LocalDateTime.now(),
-                BookingStatus.APPROVED).isEmpty()) {
-            throw new ValidationException("Не найдено успешных бронирований");
         }
 
         Comment comment = CommentMapper.toComment(commentRequestDto, item,

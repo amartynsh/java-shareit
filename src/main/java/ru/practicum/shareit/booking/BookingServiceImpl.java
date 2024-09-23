@@ -9,11 +9,9 @@ import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -28,14 +26,10 @@ import static ru.practicum.shareit.booking.BookingStatus.WAITING;
 @Service
 @Slf4j
 @AllArgsConstructor
-
 public class BookingServiceImpl {
-    BookingRepository bookingRepository;
-    UserService userService;
-    ItemService itemService;
-    ItemRepository itemRepository;
-    UserRepository userRepository;
-
+    private final BookingRepository bookingRepository;
+    private final ItemRepository itemRepository;
+    private final  UserRepository userRepository;
 
     @Transactional
     public Booking newBooking(BookingDto bookingDto, long userId) {
@@ -73,7 +67,7 @@ public class BookingServiceImpl {
             booking.setStatus(APPROVED);
             log.info("Бронирование принято");
         }
-        if (!approved) {
+        else {
             booking.setStatus(REJECTED);
             log.info("Бронирование отклонено");
         }
@@ -106,14 +100,13 @@ public class BookingServiceImpl {
     }
 
     public List<Booking> getBookingsByOwner(BookingRequestState state, long userId) {
-        Set<Item> items = new HashSet<>();
-        items = Set.copyOf(itemRepository.getItemsByOwnerId(userId));
-        Set<Long> itemIds = new HashSet<>();
-        itemIds = items.stream().map(Item::getId).collect(HashSet::new, HashSet::add, HashSet::addAll);
-        if (items.isEmpty()) {
+        Set<Long> itemIds= Set.copyOf(itemRepository.getItemsByOwnerId(userId))
+                .stream()
+                .map(Item::getId)
+                .collect(HashSet::new, HashSet::add, HashSet::addAll);
+        if (itemIds.isEmpty()) {
             throw new NotFoundException("Бронирование не найдено");
         }
-        log.info("Получение бронирований по владельцу {}", items);
 
         return switch (state) {
             case ALL -> bookingRepository.findAllByBookerIdIsAndItemIdInOrderByStartDesc(

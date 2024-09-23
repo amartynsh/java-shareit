@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping(path = "/bookings")
 public class BookingController {
 
-    BookingServiceImpl bookingService;
+    private final BookingServiceImpl bookingService;
 
     @PostMapping
     public Booking createBooking(@RequestHeader("X-Sharer-User-Id") int userId, @Valid @RequestBody BookingDto bookingDto) {
