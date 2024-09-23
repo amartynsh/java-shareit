@@ -29,7 +29,7 @@ import static ru.practicum.shareit.booking.BookingStatus.WAITING;
 public class BookingServiceImpl {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
-    private final  UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public Booking newBooking(BookingDto bookingDto, long userId) {
@@ -66,8 +66,7 @@ public class BookingServiceImpl {
         if (approved) {
             booking.setStatus(APPROVED);
             log.info("Бронирование принято");
-        }
-        else {
+        } else {
             booking.setStatus(REJECTED);
             log.info("Бронирование отклонено");
         }
@@ -100,7 +99,7 @@ public class BookingServiceImpl {
     }
 
     public List<Booking> getBookingsByOwner(BookingRequestState state, long userId) {
-        Set<Long> itemIds= Set.copyOf(itemRepository.getItemsByOwnerId(userId))
+        Set<Long> itemIds = Set.copyOf(itemRepository.getItemsByOwnerId(userId))
                 .stream()
                 .map(Item::getId)
                 .collect(HashSet::new, HashSet::add, HashSet::addAll);
