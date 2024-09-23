@@ -10,10 +10,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDto {
-    Integer id;
-
+    Long id;
     String name;
-
     @Email(message = "Email is not valid")
     String email;
 }

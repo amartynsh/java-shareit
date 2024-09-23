@@ -24,20 +24,21 @@ public class UserController {
 
     //Тут наверное надо получать не Dto а просто User ?
     @PatchMapping("/{id}")
-    public UserDto updateUser(@PathVariable int id, @Valid @RequestBody UserDto userDto) {
+    public UserDto updateUser(@PathVariable long id, @Valid @RequestBody UserDto userDto) {
         log.info("Обращение на эндпоинт PATCH /users/{}", id);
         userDto.setId(id);
         return userService.updateUser(userDto);
     }
 
     @GetMapping("/{id}")
-    public UserDto getUser(@PathVariable int id) {
+    public UserDto getUser(@PathVariable long id) {
         log.info("Обращение на эндпоинт GET /users/{id}");
-        return userService.getUser(id);
+        return userService.getById(id);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable int id) {
+    public void deleteUser(@PathVariable long id) {
+        log.info("Обращение на эндпоинт DELETE /users/{id}");
         userService.deleteUser(id);
     }
 }

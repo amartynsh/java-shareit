@@ -1,19 +1,24 @@
 package ru.practicum.shareit.item.dto;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @Data
-public class ItemDto {
+public class ItemDatesCommentsDto {
     long id;
-    @NotEmpty(message = "Не может быть пустым")
     String name;
-    @NotEmpty(message = "Не может быть пустым")
     String description;
     Boolean available;
+    List<CommentResponseDto> comments;
+    @Nullable
+    DatesDto lastBooking;
+    @Nullable
+    DatesDto nextBooking;
 }

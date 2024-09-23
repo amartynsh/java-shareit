@@ -8,20 +8,24 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.user.User;
 
-@FieldDefaults(level = AccessLevel.PRIVATE)
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
-@NoArgsConstructor
-@Data
 @Entity
-@Table(name = "items")
-public class Item {
+@Data
+@NoArgsConstructor
+@Table(name = "comments")
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    String name;
-    String description;
+    String text;
     @ManyToOne()
-    @JoinColumn(name = "owner_id")
-    User owner;
-    Boolean available;
+    @JoinColumn(name = "author_id")
+    User author;
+    @ManyToOne()
+    @JoinColumn(name = "item_id")
+    Item item;
+    LocalDateTime createDate = LocalDateTime.now();
 }

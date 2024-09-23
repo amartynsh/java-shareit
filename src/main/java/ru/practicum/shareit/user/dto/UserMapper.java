@@ -11,7 +11,7 @@ public class UserMapper {
 
     public static User toUser(UserDto userDto) {
         if (userDto.getId() == null) {
-            userDto.setId(0);
+            userDto.setId(0L);
         }
         return new User(userDto.getId(), userDto.getName(), userDto.getEmail());
     }

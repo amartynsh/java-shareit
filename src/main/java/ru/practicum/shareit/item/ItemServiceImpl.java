@@ -1,45 +1,76 @@
 package ru.practicum.shareit.item;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.exceptions.ValidationException;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserMapper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @AllArgsConstructor
 @Service
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
+    private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
     @Override
-    public ItemDto addItem(ItemDto itemDto, int userId) {
-        Item item = ItemMapper.toItem(itemDto, UserMapper.toUser(userService.getUser(userId)));
+    public ItemDto addItem(ItemDto itemDto, long userId) {
+        if (itemDto.getName() == null) {
+            throw new ValidationException("Name is required");
+        }
+        if (itemDto.getDescription() == null) {
+            throw new ValidationException("Description is required");
+        }
+        Item item = ItemMapper.toItem(itemDto, UserMapper.toUser(userService.getById(userId)));
         checkCreatedItem(item);
-        return ItemMapper.toDto(itemRepository.createItem(item));
+        return ItemMapper.toDto(itemRepository.save(item));
     }
 
     @Override
-    public ItemDto getItemById(int id) {
-        return ItemMapper.toDto(itemRepository.getItem(id));
+    public ItemDatesCommentsDto getItemById(long itemId, long userId) {
+        Item item = itemRepository.findById(itemId).get();
+        if (item.getOwner().getId() == userId) {
+            return getItemByIdForOwner(item);
+        }
+        List<CommentResponseDto> commentsDto = commentRepository.findAllByItemId(itemId).stream().map(CommentMapper::toCommentResponseDto).toList();
+        return ItemMapper.toItemDatesCommentsDto(item, null, null, commentsDto);
+    }
+
+    private ItemDatesCommentsDto getItemByIdForOwner(Item item) {
+        DatesDto lastBookDate = bookingRepository.lastBookings(LocalDateTime.now(), item.getOwner().getId(), item.getId());
+        DatesDto nextBookDate = bookingRepository.nextBookings(LocalDateTime.now(), item.getOwner().getId(), item.getId());
+        List<CommentResponseDto> commentsDto = commentRepository.findAllByItemId(item.getId()).stream().map(CommentMapper::toCommentResponseDto).toList();
+        return ItemMapper.toItemDatesCommentsDto(item, lastBookDate, nextBookDate, commentsDto);
     }
 
     @Override
-    public ItemDto updateItem(ItemDto itemDto, int userId) {
-        Item item = ItemMapper.toItem(itemDto,UserMapper.toUser(userService.getUser(userId)));
-        checkOwner(item);
+    public ItemDto updateItem(ItemDto itemDto, long userId) {
+        Item item = ItemMapper.toItem(itemDto, UserMapper.toUser(userService.getById(userId)));
+        checkOwnerForUpdatedItem(item);
         fillLostValues(item);
-        return ItemMapper.toDto(itemRepository.updateItem(item));
+        return ItemMapper.toDto(itemRepository.save(item));
     }
 
     @Override
-    public List<ItemDto> getItemsByOwnerId(int id) {
-        return itemRepository.getItemsByOwner(id).stream().map(ItemMapper::toDto).toList();
+    public List<ItemDatesCommentsDto> getItemsByOwnerId(long id) {
+
+        return itemRepository.getItemsByOwnerId(id).stream()
+                .map(this::getItemByIdForOwner)
+                .toList();
     }
 
     @Override
@@ -47,7 +78,30 @@ public class ItemServiceImpl implements ItemService {
         if (text.isBlank()) {
             return List.of();
         }
-        return itemRepository.findItemByText(text).stream().map(ItemMapper::toDto).toList();
+        String lowerCaseText = text.toLowerCase();
+        return itemRepository.findByNameOrDescriptionAllIgnoreCaseContaining(lowerCaseText, lowerCaseText).stream()
+                .filter(item -> item.getAvailable())
+                .map(ItemMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public CommentResponseDto addComment(CommentRequestDto commentRequestDto, long itemId, long userId) {
+        Item item = itemRepository.findById(itemId).get();
+
+        List<Booking> bookingsApproved = bookingRepository.findByItemIdAndBookerIdAndEndBeforeAndStatus(itemId, userId, LocalDateTime.now(),
+                BookingStatus.APPROVED);
+
+
+        if (bookingsApproved.isEmpty()) {
+            throw new ValidationException("Пользователь не бронировал эту вещь");
+        }
+
+        Comment comment = CommentMapper.toComment(commentRequestDto, item,
+                userRepository.findById(userId).get());
+
+        commentRepository.save(comment);
+        return CommentMapper.toCommentResponseDto(comment);
     }
 
     private void fillLostValues(Item item) {
@@ -66,6 +120,10 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+    public List<Comment> getCommentsByItemId(long itemId) {
+        return commentRepository.findAllByItemId(itemId);
+    }
+
     private void checkCreatedItem(Item item) {
         if (item.getAvailable() == null) {
             throw new ValidationException("Не указано поле Available");
@@ -78,15 +136,15 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private void checkOwner(Item item) {
-        Item itemExisting = itemRepository.getItem(item.getId());
+    private void checkOwnerForUpdatedItem(Item item) {
+        Item itemExisting = itemRepository.getReferenceById(item.getId());
         if (itemExisting.getOwner().getId() != item.getOwner().getId()) {
             throw new ValidationException("Владелец предмета" + itemExisting.getOwner() + " и пользователя" +
                     item.getOwner() + " не совпадают");
         }
     }
 
-    private Item getItemByIdInternal(int id) {
-        return itemRepository.getItem(id);
+    private Item getItemByIdInternal(long id) {
+        return itemRepository.getReferenceById(id);
     }
 }
