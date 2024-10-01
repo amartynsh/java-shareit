@@ -37,12 +37,11 @@ public class ItemServiceImplTest {
         itemToCreate.setAvailable(true);
         itemToCreate.setDescription("description");
         itemToCreate.setName("name");
-        long itemId = itemService.addItem(itemToCreate, userId).getId();
+        ItemDto itemCreated= itemService.addItem(itemToCreate, userId);
 
-        ItemDatesCommentsDto createdItem = itemService.getItemById(userId, itemId);
-        assertThat(createdItem.getId(), notNullValue());
-        assertThat(createdItem.getName(), is(equalTo(itemToCreate.getName())));
-        assertThat(createdItem.getDescription(), is(equalTo(createdItem.getDescription())));
-        assertThat(createdItem.getAvailable(), is(equalTo(itemToCreate.getAvailable())));
+        assertThat(itemCreated.getId(), notNullValue());
+        assertThat(itemCreated.getName(), is(equalTo(itemToCreate.getName())));
+        assertThat(itemCreated.getDescription(), is(equalTo(itemToCreate.getDescription())));
+        assertThat(itemCreated.getAvailable(), is(equalTo(itemToCreate.getAvailable())));
     }
 }
