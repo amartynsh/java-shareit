@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<Object> addUser(@Valid @RequestBody UserDto userDto) {
         log.info("Adding user: {}", userDto);
-        var user = userClient.createUser(userDto);
+        ResponseEntity<Object> user = userClient.createUser(userDto);
         log.info("СОЗДАЛИ: {}", user);
         return user;
     }

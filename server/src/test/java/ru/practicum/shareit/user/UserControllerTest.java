@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,11 +16,10 @@ import ru.practicum.shareit.user.dto.UserDto;
 import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,7 +47,7 @@ class UserControllerTest {
     }
 
     @Test
-    void createUser() throws Exception {
+    void userShouldBeAdded() throws Exception {
 
         when(userService.addUser(any()))
                 .thenReturn(userDto);
@@ -63,15 +63,47 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.email", is(userDto.getEmail())));
     }
 
+
     @Test
-    void updateUser() {
+    @DisplayName(value = "PATCH /users/{userId}")
+    void userShouldBeUpdated() throws Exception {
+        when(userService.updateUser(any()))
+                .thenReturn(userDto);
+
+        mvc.perform(patch("/users/{userId}", 0)
+                        .content(mapper.writeValueAsString(userDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
+                .andExpect(jsonPath("$.name", is(userDto.getName())))
+                .andExpect(jsonPath("$.email", is(userDto.getEmail())))
+                .andExpect(status().is2xxSuccessful());
     }
 
     @Test
-    void getUser() {
+    void userShouldBeFound() throws Exception {
+        when(userService.getById(1001))
+                .thenReturn(userDto);
+
+        mvc.perform(get("/users/{userId}", 1001L)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
+                .andExpect(jsonPath("$.name", is(userDto.getName())))
+                .andExpect(jsonPath("$.email", is(userDto.getEmail())))
+                .andExpect(status().is2xxSuccessful());
     }
 
+
     @Test
-    void deleteUser() {
+    void userShouldBeDeleted() throws Exception {
+
+        mvc.perform(delete("/users/{userId}", 1001L)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful());
     }
 }

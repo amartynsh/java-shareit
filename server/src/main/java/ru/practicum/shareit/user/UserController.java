@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -17,14 +16,14 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDto createUser(@Valid @RequestBody UserDto userDto) {
+    public UserDto createUser(@RequestBody UserDto userDto) {
         log.info("Обращение на эндпоинт POST /users, пользователь: {}", userDto);
         return userService.addUser(userDto);
     }
 
     //Тут наверное надо получать не Dto а просто User ?
     @PatchMapping("/{id}")
-    public UserDto updateUser(@PathVariable long id, @Valid @RequestBody UserDto userDto) {
+    public UserDto updateUser(@PathVariable long id, @RequestBody UserDto userDto) {
         log.info("Обращение на эндпоинт PATCH /users/{}", id);
         userDto.setId(id);
         return userService.updateUser(userDto);

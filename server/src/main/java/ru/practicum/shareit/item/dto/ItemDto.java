@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Data
 public class ItemDto {
-    long id;
+    Long id;
     @NotEmpty(message = "Не может быть пустым")
     String name;
     @NotEmpty(message = "Не может быть пустым")

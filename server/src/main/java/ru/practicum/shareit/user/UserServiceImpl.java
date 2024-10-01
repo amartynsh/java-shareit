@@ -40,18 +40,14 @@ public class UserServiceImpl implements UserService {
 
         log.info("получили из репозиторияпользователя = {} ", user);
         if (userDto.getEmail() == null) {
-            log.info("дозаполнили email");
             userDto.setEmail(user.getEmail());
         }
 
         if (userDto.getName() == null) {
-            log.info("дозаполнили имя");
             userDto.setName(user.getName());
         }
         User userToUpdate = UserMapper.toUser(userDto);
         checkByEmail(userToUpdate);
-
-        log.info("Обновление пользователя = {} ", userToUpdate);
         return UserMapper.toUserDto(repository.save(userToUpdate));
     }
 

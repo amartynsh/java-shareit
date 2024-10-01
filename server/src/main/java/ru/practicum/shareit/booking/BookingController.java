@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -19,7 +18,7 @@ public class BookingController {
     private final BookingServiceImpl bookingService;
 
     @PostMapping
-    public Booking createBooking(@RequestHeader("X-Sharer-User-Id") int userId, @Valid @RequestBody BookingDto bookingDto) {
+    public Booking createBooking(@RequestHeader("X-Sharer-User-Id") int userId, @RequestBody BookingDto bookingDto) {
         log.info("Обращение на POST /bookings {}", bookingDto);
         return bookingService.newBooking(bookingDto, userId);
     }
