@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
 
-import io.micrometer.common.lang.Nullable;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +29,7 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public ResponseEntity<Object> updateUser(@PathVariable long userId,
-                                             @Nullable @RequestBody UserDto userDto) {
+                                             @RequestBody UserDto userDto) {
         log.info("Updating user: {} with id: {}", userDto, userId);
 
         return userClient.updateUser(userId, userDto);
