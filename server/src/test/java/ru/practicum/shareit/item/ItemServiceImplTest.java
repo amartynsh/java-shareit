@@ -46,4 +46,25 @@ public class ItemServiceImplTest {
         assertThat(result.getDescription(), equalTo(item.getDescription()));
         assertThat(result.getOwner().getId(), equalTo(owner.getId()));
     }
+
+    @Test
+    void shoudBeDeletedItemTest() {
+        UserDto owner = userService.addUser(new UserDto(1L, "Test Owner", "testuser@yandex.ru"));
+        ItemDto item = new ItemDto(
+                2L,
+                "name",
+                "description",
+                true,
+                null);
+        item = itemService.addItem(item, owner.getId());
+
+        TypedQuery<Item> queryItem = em.createQuery("Select u from Item u where u.id = :id", Item.class);
+        Item result = queryItem.setParameter("id", item.getId())
+                .getSingleResult();
+
+        assertThat(result.getId(), notNullValue());
+        assertThat(result.getName(), equalTo(item.getName()));
+        assertThat(result.getDescription(), equalTo(item.getDescription()));
+        assertThat(result.getOwner().getId(), equalTo(owner.getId()));
+    }
 }

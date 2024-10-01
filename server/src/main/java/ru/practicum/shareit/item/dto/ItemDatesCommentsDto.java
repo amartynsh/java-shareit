@@ -17,8 +17,6 @@ public class ItemDatesCommentsDto {
     String description;
     Boolean available;
     List<CommentResponseDto> comments;
-    @Nullable
     DatesDto lastBooking;
-    @Nullable
     DatesDto nextBooking;
 }
