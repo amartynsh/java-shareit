@@ -22,21 +22,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = BookingController.class)
 public class BookingControllerTest {
-    @Autowired
-    ObjectMapper mapper;
-
-    @MockBean
-    BookingServiceImpl bookingService;
-
-    @Autowired
-    private MockMvc mvc;
-
     private final BookingDto bookingDto = new BookingDto(
             1L,
             LocalDateTime.now(),
             LocalDateTime.now().plusHours(1)
     );
-
     private final Booking booking = new Booking(
             1L,
             BookingStatus.WAITING,
@@ -44,7 +34,12 @@ public class BookingControllerTest {
             LocalDateTime.now().plusHours(1),
             null,
             null);
-
+    @Autowired
+    ObjectMapper mapper;
+    @MockBean
+    BookingServiceImpl bookingService;
+    @Autowired
+    private MockMvc mvc;
 
     @Test
     public void createBooking() throws Exception {

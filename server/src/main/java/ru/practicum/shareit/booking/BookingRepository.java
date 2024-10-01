@@ -40,7 +40,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             Long ownerId, Set<Long> itemIds, LocalDateTime now);
 
     List<Booking> findByItemIdAndBookerIdAndEndBeforeAndStatus(long itemId, long bookerId,
-                                                                   LocalDateTime end, BookingStatus status);
+                                                               LocalDateTime end, BookingStatus status);
 
     @Query(" select new ru.practicum.shareit.item.dto.DatesDto (MAX(b.start), MAX(b.end)) " +
             " from Booking b " +

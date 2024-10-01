@@ -48,7 +48,7 @@ public class ItemRequestServiceImpl {
         log.info("Получили список findByAuthorIdOrderByCreatedDesc = {}", itemRequests);
 
         return itemRequests.stream().map(this::getItemRequestsResponseWithAnswers).toList();
-        }
+    }
 
     public ItemRequestResponseOwnerDto getRequestById(long rquestId) {
         log.info("Начало обработки запроса getRequestById = {}", rquestId);
@@ -64,8 +64,8 @@ public class ItemRequestServiceImpl {
                 .map(ItemMapper::toItemOwnerDto)
                 .toList();
         log.info("Для ItemRequest = {} нашли ответы на запросы  {}", itemRequest.getId(), itemResponses);
-        ItemRequestResponseOwnerDto itemRequestResponse = ItemRequestMapper.toItemRequestResponseOwnerDto(itemRequest,itemResponses);
-       return itemRequestResponse;
+        ItemRequestResponseOwnerDto itemRequestResponse = ItemRequestMapper.toItemRequestResponseOwnerDto(itemRequest, itemResponses);
+        return itemRequestResponse;
 
     }
 
