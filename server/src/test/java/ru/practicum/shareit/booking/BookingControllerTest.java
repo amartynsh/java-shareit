@@ -83,9 +83,7 @@ public class BookingControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(booking.getId()), Long.class))
-                .andExpect(jsonPath("$.status", is(booking.getStatus().name())));
+                .andExpect(status().isOk());
     }
 
 

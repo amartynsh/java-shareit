@@ -55,7 +55,7 @@ public class BookingServiceImpl {
         return bookingRepository.getReferenceById(booking.getId());
     }
 
-    public Booking updateBooking(Long bookingId, int userId, Boolean approved) {
+    public Booking updateBooking(Long bookingId, long userId, Boolean approved) {
         log.info("Обновление бронирования {}", bookingId);
         Booking booking = bookingRepository.findById(bookingId).get();
         if (booking.getItem().getOwner().getId() != userId) {

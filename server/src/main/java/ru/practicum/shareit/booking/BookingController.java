@@ -18,25 +18,25 @@ public class BookingController {
     private final BookingServiceImpl bookingService;
 
     @PostMapping
-    public Booking createBooking(@RequestHeader("X-Sharer-User-Id") int userId, @RequestBody BookingDto bookingDto) {
+    public Booking createBooking(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody BookingDto bookingDto) {
         log.info("Обращение на POST /bookings {}", bookingDto);
         return bookingService.newBooking(bookingDto, userId);
     }
 
     @PatchMapping(path = "/{bookingId}")
-    public Booking updateBooking(@RequestHeader("X-Sharer-User-Id") int userId, @PathVariable long bookingId,
+    public Booking updateBooking(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long bookingId,
                                  @RequestParam Boolean approved) {
         return bookingService.updateBooking(bookingId, userId, approved);
     }
 
     @GetMapping(path = "/{bookingId}")
-    public Booking getBooking(@RequestHeader("X-Sharer-User-Id") int userId, @PathVariable long bookingId) {
+    public Booking getBooking(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long bookingId) {
         bookingService.getBooking(bookingId, userId);
         return bookingService.getBooking(bookingId, userId);
     }
 
     @GetMapping
-    public List<Booking> getBookingsByStatus(@RequestHeader("X-Sharer-User-Id") int userId,
+    public List<Booking> getBookingsByStatus(@RequestHeader("X-Sharer-User-Id") long userId,
                                              @RequestParam(defaultValue = "ALL") BookingRequestState state) {
         log.info("Обращение на GET /bookings?state={} и  userId={}", state, userId);
         return bookingService.getBookingsByStatus(userId, state);

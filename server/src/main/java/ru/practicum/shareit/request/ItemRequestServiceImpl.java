@@ -34,14 +34,6 @@ public class ItemRequestServiceImpl {
         return itemRequestResponseDto;
     }
 
-    public List<ItemRequestResponseDto> getByAuthorId(long authorId) {
-        return itemRequestRepository.findByAuthorIdOrderByCreatedDesc(authorId)
-                .stream()
-                .map(ItemRequestMapper::toItemRequestResponseDto)
-                .toList();
-    }
-
-
     public List<ItemRequestResponseOwnerDto> getRequestByAuthorId(long authorId) {
         log.info("Начало обработки запроса getRequestByAuthorId = {}", authorId);
         List<ItemRequest> itemRequests = itemRequestRepository.findByAuthorIdOrderByCreatedDesc(authorId);
