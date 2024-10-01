@@ -8,8 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -17,7 +15,7 @@ import java.time.LocalDateTime;
 public class BookingDto {
     long itemId;
     @FutureOrPresent
-    LocalDateTime start;
+    String start;
     @Future
-    LocalDateTime end;
+    String end;
 }

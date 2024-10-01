@@ -46,7 +46,7 @@ public class BookingServiceImpl {
         }
 
         User user = userOptional.get();
-        if (bookingDto.getStart().isEqual(bookingDto.getEnd())) {
+        if (bookingDto.getStart().equals(bookingDto.getEnd())) {
             throw new ValidationException("Дата начала бронирования не может быть равна дате окончания");
         }
 

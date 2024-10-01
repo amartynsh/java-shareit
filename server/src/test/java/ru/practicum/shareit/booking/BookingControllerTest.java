@@ -1,13 +1,17 @@
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.booking.dto.BookingDto;
 
 import java.nio.charset.StandardCharsets;
@@ -20,12 +24,23 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = BookingController.class)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class BookingControllerTest {
+
+    private ObjectMapper mapper = new ObjectMapper();
+
+    @Mock
+    BookingServiceImpl bookingService;
+    private MockMvc mvc;
+    @InjectMocks
+    private BookingController controller;
+
     private final BookingDto bookingDto = new BookingDto(
             1L,
-            LocalDateTime.now(),
-            LocalDateTime.now().plusHours(1)
+            LocalDateTime.now().toString(),
+            LocalDateTime.now().plusHours(1).toString()
     );
     private final Booking booking = new Booking(
             1L,
@@ -34,12 +49,13 @@ public class BookingControllerTest {
             LocalDateTime.now().plusHours(1),
             null,
             null);
-    @Autowired
-    ObjectMapper mapper;
-    @MockBean
-    BookingServiceImpl bookingService;
-    @Autowired
-    private MockMvc mvc;
+
+    @BeforeEach
+    void setUp() {
+        mvc = MockMvcBuilders
+                .standaloneSetup(controller)
+                .build();
+    }
 
     @Test
     public void createBooking() throws Exception {
