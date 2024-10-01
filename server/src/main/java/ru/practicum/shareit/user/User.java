@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
