@@ -35,10 +35,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(UserDto userDto) {
-        log.info("начали обновление пользователя = {} ", userDto);
         User user = repository.getReferenceById(userDto.getId());
-
-        log.info("получили из репозиторияпользователя = {} ", user);
         if (userDto.getEmail() == null) {
             userDto.setEmail(user.getEmail());
         }
