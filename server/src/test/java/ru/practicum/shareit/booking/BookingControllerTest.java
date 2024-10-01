@@ -29,14 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class BookingControllerTest {
 
-    private ObjectMapper mapper = new ObjectMapper();
-
-    @Mock
-    BookingServiceImpl bookingService;
-    private MockMvc mvc;
-    @InjectMocks
-    private BookingController controller;
-
     private final BookingDto bookingDto = new BookingDto(
             1L,
             LocalDateTime.now().toString(),
@@ -49,6 +41,12 @@ public class BookingControllerTest {
             LocalDateTime.now().plusHours(1),
             null,
             null);
+    @Mock
+    BookingServiceImpl bookingService;
+    private ObjectMapper mapper = new ObjectMapper();
+    private MockMvc mvc;
+    @InjectMocks
+    private BookingController controller;
 
     @BeforeEach
     void setUp() {
