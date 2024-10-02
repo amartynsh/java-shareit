@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.exceptions;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -10,12 +10,11 @@ import static org.hamcrest.Matchers.equalTo;
 
 @JsonTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-class CommentRequestDtoTest {
+class ErrorResponseTest {
     @Test
-    void createCommentRequestDtoTest() {
-        CommentRequestDto commentRequestDto = new CommentRequestDto(
-                "test text"
-        );
-        assertThat(commentRequestDto.getText(), equalTo("test text"));
+    void createErrorResponseTest() {
+        ErrorResponse errorResponse = new ErrorResponse("test text");
+        assertThat(errorResponse.getError(), equalTo("test text"));
     }
+
 }

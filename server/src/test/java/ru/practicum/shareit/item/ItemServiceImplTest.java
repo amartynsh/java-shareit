@@ -148,6 +148,19 @@ public class ItemServiceImplTest {
         itemService.addItem(item, owner.getId());
         List<ItemDto> items = itemService.findItemByText("");
         assertThat(items.size(), equalTo(0));
-
     }
+/*    @Test
+    void addCommentTest() {
+        UserDto owner = userService.addUser(new UserDto(1L, "Test Owner", "testuser@yandex.ru"));
+        ItemDto item = new ItemDto(
+                2L,
+                "name",
+                "description",
+                true,
+                null);
+        itemService.addItem(item, owner.getId());
+        ItemDatesCommentsDto itemDatesCommentsDto = itemService.getItemById(item.getId(), owner.getId());
+        itemService.addComment(itemDatesCommentsDto.getId(), "test comment");
+    }*/
+
 }

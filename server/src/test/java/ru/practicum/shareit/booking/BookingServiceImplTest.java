@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.ItemRequestServiceImpl;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -60,6 +62,24 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void shouldNotBeAddedBookingTest() {
+        ItemDto item = new ItemDto(
+                0L,
+                "name",
+                "description",
+                true,
+                null);
+        UserDto owner = userService.addUser(new UserDto(0L,
+                "Test Owner",
+                "testuser@yandex.ru")
+        );
+        BookingDto book = new BookingDto(item.getId(),
+                LocalDateTime.now().minusDays(2).toString(),
+                LocalDateTime.now().minusDays(1).toString());
+        assertThrows(NotFoundException.class, () -> bookingService.newBooking(book, 22));
+    }
+
+    @Test
     void shoudGetBooking() {
         UserDto owner = userService.addUser(new UserDto(0L,
                 "Test Owner",
@@ -88,39 +108,4 @@ class BookingServiceImplTest {
         bookingService.getBooking(result.getId(), booker.getId());
         assertThat(result.getBooker().getId(), equalTo(booker.getId()));
     }
-
-/*    @Test
-    void shouldUpdateBooking() {
-        UserDto owner = userService.addUser(new UserDto(0L,
-                "Test Owner",
-                "testuser@yandex.ru")
-        );
-        ItemDto item = new ItemDto(
-                0L,
-                "name",
-                "description",
-                true,
-                null);
-
-        ItemDto addedItem = itemService.addItem(item, owner.getId());
-
-        UserDto booker = userService.addUser(new UserDto(0L,
-                "Test Booker",
-                "testuser123@yandex.ru"));
-        BookingDto book = new BookingDto(addedItem.getId(),
-                LocalDateTime.now().minusDays(2).toString(),
-                LocalDateTime.now().minusDays(1).toString());
-        Booking booking = bookingService.newBooking(book, booker.getId());
-        TypedQuery<Booking> queryBooking = em.createQuery("Select u from Booking u", Booking.class);
-        Booking result = queryBooking
-                .getSingleResult();
-
-
-        bookingService.updateBooking(result.getId(), owner.getId(), true);
-
-        Booking result2 = queryBooking
-                .getSingleResult();
-        assertThat(result.getStatus(), equalTo(true));
-
-    }*/
 }

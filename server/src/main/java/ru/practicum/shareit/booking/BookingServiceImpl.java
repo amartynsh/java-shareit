@@ -41,10 +41,10 @@ public class BookingServiceImpl {
             throw new NotFoundException("Товар для бронирования не найден");
         }
         Item item = itemOptional.get();
+
         if (!item.getAvailable()) {
             throw new ValidationException("Этот товар недоступен для бронирования");
         }
-
         User user = userOptional.get();
         if (bookingDto.getStart().equals(bookingDto.getEnd())) {
             throw new ValidationException("Дата начала бронирования не может быть равна дате окончания");
