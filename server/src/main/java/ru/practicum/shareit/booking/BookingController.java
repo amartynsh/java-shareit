@@ -38,7 +38,7 @@ public class BookingController {
     @GetMapping
     public List<Booking> getBookingsByStatus(@RequestHeader("X-Sharer-User-Id") long userId,
                                              @RequestParam(defaultValue = "ALL") BookingRequestState state) {
-        log.info("Обращение на GET /bookings?state={} и  userId={}", state, userId);
+        log.info("Обращение на GET /bookings?state={} ", state, userId);
         return bookingService.getBookingsByStatus(userId, state);
     }
 

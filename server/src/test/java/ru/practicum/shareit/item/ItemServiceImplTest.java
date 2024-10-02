@@ -3,19 +3,25 @@ package ru.practicum.shareit.item;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingServiceImpl;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.item.dto.CommentMapper;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemDatesCommentsDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequestServiceImpl;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,18 +42,23 @@ public class ItemServiceImplTest {
     private final ItemRequestServiceImpl itemRequestService;
 
     private final BookingServiceImpl bookingService;
+    UserDto owner;
+    ItemDto item;
 
-    @Test
-    void shouldBeAddedItemTest() {
-        UserDto owner = userService.addUser(new UserDto(1L, "Test Owner", "testuser@yandex.ru"));
-        ItemDto item = new ItemDto(
+    @BeforeEach
+    void setUp() {
+        item = new ItemDto(
                 2L,
                 "name",
                 "description",
                 true,
                 null);
-        item = itemService.addItem(item, owner.getId());
+        owner = userService.addUser(new UserDto(1L, "Test Owner", "testuser@yandex.ru"));
+    }
 
+    @Test
+    void shouldBeAddedItemTest() {
+        item = itemService.addItem(item, owner.getId());
         TypedQuery<Item> queryItem = em.createQuery("Select u from Item u where u.id = :id", Item.class);
         Item result = queryItem.setParameter("id", item.getId())
                 .getSingleResult();
@@ -60,25 +71,12 @@ public class ItemServiceImplTest {
 
     @Test
     void shouldNotBeAddedItemTest() {
-        UserDto owner = userService.addUser(new UserDto(1L, "Test Owner", "testuser@yandex.ru"));
-        ItemDto item = new ItemDto(
-                2L,
-                "",
-                "description",
-                true,
-                null);
+        item.setAvailable(null);
         assertThrows(ValidationException.class, () -> itemService.addItem(item, owner.getId()));
     }
 
     @Test
     void shouldGetItemById() {
-        UserDto owner = userService.addUser(new UserDto(1L, "Test Owner", "testuser@yandex.ru"));
-        ItemDto item = new ItemDto(
-                2L,
-                "name",
-                "description",
-                true,
-                null);
         ItemDto savedItem = itemService.addItem(item, owner.getId());
         ItemDatesCommentsDto getItem = itemService.getItemById(savedItem.getId(), owner.getId());
         assertThat(getItem.getId(), notNullValue());
@@ -87,13 +85,7 @@ public class ItemServiceImplTest {
 
     @Test
     void shouldUpdateItem() {
-        UserDto owner = userService.addUser(new UserDto(1L, "Test Owner", "testuser@yandex.ru"));
-        ItemDto item = new ItemDto(
-                2L,
-                "name",
-                "description",
-                true,
-                null);
+
         ItemDto newItem = itemService.addItem(item, owner.getId());
         item.setName("new name");
         ItemService service = mock(ItemServiceImpl.class);
@@ -107,13 +99,7 @@ public class ItemServiceImplTest {
 
     @Test
     void shouldGetItemsByOwnerId() {
-        UserDto owner = userService.addUser(new UserDto(1L, "Test Owner", "testuser@yandex.ru"));
-        ItemDto item = new ItemDto(
-                2L,
-                "name",
-                "description",
-                true,
-                null);
+
         ItemDto savedItem = itemService.addItem(item, owner.getId());
         TypedQuery<Item> queryItem = em.createQuery("Select u from Item u where u.id = :id", Item.class);
         Item result = queryItem.setParameter("id", savedItem.getId())
@@ -124,13 +110,6 @@ public class ItemServiceImplTest {
 
     @Test
     void shouldfindItemByText() {
-        UserDto owner = userService.addUser(new UserDto(1L, "Test Owner", "testuser@yandex.ru"));
-        ItemDto item = new ItemDto(
-                2L,
-                "name",
-                "description",
-                true,
-                null);
         itemService.addItem(item, owner.getId());
         List<ItemDto> items = itemService.findItemByText(item.getDescription());
         assertThat(items.get(0).getName(), equalTo(item.getName()));
@@ -138,29 +117,59 @@ public class ItemServiceImplTest {
 
     @Test
     void shouldNotfindItemByText() {
-        UserDto owner = userService.addUser(new UserDto(1L, "Test Owner", "testuser@yandex.ru"));
-        ItemDto item = new ItemDto(
-                2L,
-                "name",
-                "description",
-                true,
-                null);
         itemService.addItem(item, owner.getId());
         List<ItemDto> items = itemService.findItemByText("");
         assertThat(items.size(), equalTo(0));
     }
-/*    @Test
-    void addCommentTest() {
-        UserDto owner = userService.addUser(new UserDto(1L, "Test Owner", "testuser@yandex.ru"));
-        ItemDto item = new ItemDto(
+
+    @Test
+    void shouldNotAddItemTest() {
+        item.setAvailable(null);
+        assertThrows(ValidationException.class, () -> itemService.addItem(item, owner.getId()));
+        item.setAvailable(true);
+        item.setName("");
+        assertThrows(ValidationException.class, () -> itemService.addItem(item, owner.getId()));
+        item.setName("Name");
+        item.setDescription("");
+        assertThrows(ValidationException.class, () -> itemService.addItem(item, owner.getId()));
+    }
+
+    @Test
+    void shouldGetItemsByUserId() {
+        UserDto requestor = userService.addUser(new UserDto(1L, "Test Owner", "testrequester@yandex.ru"));
+        ItemDto savedItem = itemService.addItem(item, owner.getId());
+        ItemDatesCommentsDto newItem = itemService.getItemById(savedItem.getId(), requestor.getId());
+        assertThat(newItem.getId(), equalTo(savedItem.getId()));
+        assertThat(newItem.getComments().size(), equalTo(0));
+    }
+
+    @Test
+    void shouldMapCommentTest() {
+        CommentRequestDto requestDto = new CommentRequestDto(
+                "test comment"
+        );
+
+        User user = new User(
+                1L,
+                "test user",
+                "test@yandex.ru"
+        );
+        Item newItem = new Item(
                 2L,
                 "name",
                 "description",
+                user,
                 true,
-                null);
-        itemService.addItem(item, owner.getId());
-        ItemDatesCommentsDto itemDatesCommentsDto = itemService.getItemById(item.getId(), owner.getId());
-        itemService.addComment(itemDatesCommentsDto.getId(), "test comment");
-    }*/
+                null
+        );
 
+        CommentMapper.toComment(requestDto, newItem, user);
+        Comment comment = new Comment(
+                1L,
+                "text",
+                user,
+                newItem,
+                LocalDateTime.now());
+        CommentMapper.toCommentResponseDto(comment);
+    }
 }

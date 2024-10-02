@@ -29,12 +29,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto addItem(ItemDto itemDto, long userId) {
-        if (itemDto.getName() == null) {
-            throw new ValidationException("Name is required");
-        }
-        if (itemDto.getDescription() == null) {
-            throw new ValidationException("Description is required");
-        }
         Item item = ItemMapper.toItem(itemDto, UserMapper.toUser(userService.getById(userId)));
         checkCreatedItem(item);
         Item savedItem = itemRepository.save(item);

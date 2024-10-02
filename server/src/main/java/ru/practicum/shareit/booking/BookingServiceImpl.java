@@ -104,20 +104,6 @@ public class BookingServiceImpl {
         if (itemIds.isEmpty()) {
             throw new NotFoundException("Бронирование не найдено");
         }
-
-        return switch (state) {
-            case ALL -> bookingRepository.findAllByBookerIdIsAndItemIdInOrderByStartDesc(
-                    userId, itemIds);
-            case WAITING -> bookingRepository.findAllByBookerIdIsAndItemIdInAndStatusIsOrderByStartDesc(
-                    userId, itemIds, WAITING);
-            case REJECTED -> bookingRepository.findAllByBookerIdIsAndItemIdInAndStatusIsOrderByStartDesc(
-                    userId, itemIds, REJECTED);
-            case CURRENT -> bookingRepository.findAllByBookerIdIsAndItemIdInAndStatusIsOrderByStartDesc(
-                    userId, itemIds, APPROVED);
-            case FUTURE -> bookingRepository.findAllByBookerIdIsAndItemIdInAndStartAfterOrderByStartDesc(
-                    userId, itemIds, LocalDateTime.now());
-            case PAST -> bookingRepository.findAllByBookerIdIsAndItemIdInAndEndBeforeOrderByStartDesc(
-                    userId, itemIds, LocalDateTime.now());
-        };
+        return getBookingsByStatus(userId, state);
     }
 }

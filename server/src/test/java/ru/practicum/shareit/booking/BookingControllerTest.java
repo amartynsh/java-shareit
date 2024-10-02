@@ -127,23 +127,35 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void getAllBookingsForByStatus1() throws Exception {
-        when(bookingService.getBookingsByStatus(1L, BookingRequestState.valueOf(BookingRequestState.ALL.name())))
+    public void getAllBookingsForByUserAndStatus() throws Exception {
+        when(bookingService.getBookingsByOwner(BookingRequestState.valueOf(BookingRequestState.ALL.name()), 1L))
                 .thenReturn(List.of(booking));
 
         mvc.perform(MockMvcRequestBuilders.get("/bookings/owner")
                         .accept(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1L)
-                        .param("state", String.valueOf(BookingRequestState.REJECTED)))
+                        .param("state", String.valueOf(BookingRequestState.ALL)))
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void getAllBookingsForByStatus2() throws Exception {
+    public void getAllBookingsForByStatusReject() throws Exception {
         when(bookingService.getBookingsByStatus(1L, BookingRequestState.valueOf(BookingRequestState.ALL.name())))
                 .thenReturn(List.of(booking));
 
-        mvc.perform(MockMvcRequestBuilders.get("/bookings/owner")
+        mvc.perform(MockMvcRequestBuilders.get("/bookings/")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("state", String.valueOf(BookingRequestState.ALL)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getAllBookingsForByOwnerAndState() throws Exception {
+        when(bookingService.getBookingsByStatus(1L, BookingRequestState.valueOf(BookingRequestState.ALL.name())))
+                .thenReturn(List.of(booking));
+
+        mvc.perform(MockMvcRequestBuilders.get("/bookings/owner/")
                         .accept(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1L)
                         .param("state", String.valueOf(BookingRequestState.CURRENT)))
