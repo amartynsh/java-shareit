@@ -100,6 +100,7 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$.status", is(booking.getStatus().name())));
     }
 
+
     @Test
     public void getAllBookingsMadeByUser() throws Exception {
         when(bookingService.getBookingsByOwner(BookingRequestState.ALL, 1L))
@@ -122,6 +123,30 @@ public class BookingControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1L)
                         .param("state", String.valueOf(BookingRequestState.ALL)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getAllBookingsForByStatus1() throws Exception {
+        when(bookingService.getBookingsByStatus(1L, BookingRequestState.valueOf(BookingRequestState.ALL.name())))
+                .thenReturn(List.of(booking));
+
+        mvc.perform(MockMvcRequestBuilders.get("/bookings/owner")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("state", String.valueOf(BookingRequestState.REJECTED)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getAllBookingsForByStatus2() throws Exception {
+        when(bookingService.getBookingsByStatus(1L, BookingRequestState.valueOf(BookingRequestState.ALL.name())))
+                .thenReturn(List.of(booking));
+
+        mvc.perform(MockMvcRequestBuilders.get("/bookings/owner")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("state", String.valueOf(BookingRequestState.CURRENT)))
                 .andExpect(status().isOk());
     }
 }

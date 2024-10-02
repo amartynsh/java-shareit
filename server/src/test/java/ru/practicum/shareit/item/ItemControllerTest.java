@@ -103,7 +103,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void getItem() throws Exception {
+    void getItemById() throws Exception {
         when(itemService.getItemById(1002L, 1002L))
                 .thenReturn(itemDatesCommentsDto);
 

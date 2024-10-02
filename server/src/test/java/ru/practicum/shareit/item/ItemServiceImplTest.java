@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,11 +25,12 @@ import static org.hamcrest.Matchers.notNullValue;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemServiceImplTest {
+
     private final ItemService itemService;
     private final UserService userService;
     private final EntityManager em;
     private final ItemRequestServiceImpl itemRequestService;
-    @Mock
+
     private final BookingServiceImpl bookingService;
 
     @Test
@@ -116,69 +116,4 @@ public class ItemServiceImplTest {
         List<ItemDto> items = itemService.findItemByText(item.getDescription());
         assertThat(items.get(0).getName(), equalTo(item.getName()));
     }
-
-/*
-    @Test
-    void shouldAddComment() {
-        CommentRequestDto requestDto = new CommentRequestDto(
-                "test comment"
-        );
-        UserDto owner = userService.addUser(new UserDto(0L,
-                "Test Owner",
-                "testuser@yandex.ru")
-        );
-        UserDto booker = userService.addUser(new UserDto(0L,
-                "Test Booker",
-                "testuser123@yandex.ru")
-        );
-        ItemDto item = new ItemDto(
-                0L,
-                "name",
-                "description",
-                true,
-                null);
-
-        ItemDto addedItem = itemService.addItem(item, owner.getId());
-
-        BookingDto book = new BookingDto(addedItem.getId(),
-                LocalDateTime.now().minusDays(2).toString(),
-                LocalDateTime.now().minusDays(1).toString());
-
-        when(bookingService.newBooking(book, booker.getId()))
-                .thenReturn(new Booking(
-                        1L,
-                        BookingStatus.WAITING,
-                        LocalDateTime.now().minusDays(2),
-                        LocalDateTime.now().minusDays(1),
-                        em.find(Item.class, addedItem.getId()),
-                        em.find(User.class, booker.getId()))
-                );
-
-        Booking newBooking = bookingService.newBooking(book, booker.getId());
-
-        User userOwner = em.find(User.class, owner.getId());
-
-        when(bookingService.updateBooking(newBooking.getId(), owner.getId(), true))
-                .thenReturn(new Booking(
-                        1L,
-                        BookingStatus.WAITING,
-                        LocalDateTime.now().minusDays(2),
-                        LocalDateTime.now().minusDays(1),
-                        new Item(addedItem.getId(),
-                                "name",
-                                "description",
-                                userOwner,
-                                true,
-                                null),
-                        em.find(User.class, booker.getId()))
-                );
-
-        Booking bookingUpdated = bookingService.updateBooking(newBooking.getId(), owner.getId(), true);
-
-        CommentResponseDto commentResponseDto =
-                itemService.addComment(requestDto, addedItem.getId(), booker.getId());
-        assertThat(commentResponseDto.getText(), equalTo(requestDto.getText()));
-    }
-*/
-
 }
