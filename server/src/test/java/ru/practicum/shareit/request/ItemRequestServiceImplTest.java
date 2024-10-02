@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
@@ -17,7 +18,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -56,7 +56,7 @@ class ItemRequestServiceImplTest {
     void shouldNotCreateItemRequest() {
         UserDto userDto = new UserDto(1L, "Test User", "test@yandex.ru");
         userService.addUser(userDto);
-        assertThrows(NoSuchElementException.class, () -> itemRequestService.createRequest(itemRequestDto, 2L));
+        assertThrows(NotFoundException.class, () -> itemRequestService.createRequest(itemRequestDto, 2L));
     }
 
     @Test
