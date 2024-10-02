@@ -5,19 +5,23 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 
+import java.time.LocalDateTime;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 @JsonTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-class CommentRequestDtoTest {
+class DatesDtoTest {
     @Test
-    void createCommentRequestDtoTest() {
-        CommentRequestDto commentRequestDto = new CommentRequestDto(
-                "test text"
-        );
-
-        assertThat(commentRequestDto.getText(), equalTo("test text"));
+    void createDatesDtoTest() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now2 = LocalDateTime.now();
+        DatesDto datesDto = new DatesDto(
+                now,
+                now2);
+        assertThat(datesDto.getStart(), equalTo(now));
+        assertThat(datesDto.getEnd(), equalTo(now2));
 
     }
 }

@@ -15,12 +15,4 @@ import java.time.LocalDateTime;
 public class DatesDto {
     LocalDateTime start;
     LocalDateTime end;
-
-    public int compareToStart(DatesDto datesDto) {
-        return start.compareTo(datesDto.getStart());
-    }
-
-    public int compareToEnd(DatesDto datesDto) {
-        return start.compareTo(datesDto.getEnd());
-    }
 }

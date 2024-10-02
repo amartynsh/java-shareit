@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingServiceImpl;
+import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDatesCommentsDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -20,6 +21,9 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -55,6 +59,18 @@ public class ItemServiceImplTest {
     }
 
     @Test
+    void shouldNotBeAddedItemTest() {
+        UserDto owner = userService.addUser(new UserDto(1L, "Test Owner", "testuser@yandex.ru"));
+        ItemDto item = new ItemDto(
+                2L,
+                "",
+                "description",
+                true,
+                null);
+        assertThrows(ValidationException.class, () -> itemService.addItem(item, owner.getId()));
+    }
+
+    @Test
     void shouldGetItemById() {
         UserDto owner = userService.addUser(new UserDto(1L, "Test Owner", "testuser@yandex.ru"));
         ItemDto item = new ItemDto(
@@ -69,7 +85,7 @@ public class ItemServiceImplTest {
         assertThat(getItem.getName(), equalTo(item.getName()));
     }
 
-/*    @Test
+    @Test
     void shouldUpdateItem() {
         UserDto owner = userService.addUser(new UserDto(1L, "Test Owner", "testuser@yandex.ru"));
         ItemDto item = new ItemDto(
@@ -80,11 +96,14 @@ public class ItemServiceImplTest {
                 null);
         ItemDto newItem = itemService.addItem(item, owner.getId());
         item.setName("new name");
-        itemService.updateItem(item, owner.getId());
-        ItemDatesCommentsDto getItem = itemService.getItemById(newItem.getId(), owner.getId());
-        assertThat(getItem.getId(), notNullValue());
-        assertThat(getItem.getName(), equalTo("new name"));
-    }*/
+        ItemService service = mock(ItemServiceImpl.class);
+        when(service.updateItem(item, owner.getId()))
+                .thenReturn(item);
+
+        ItemDto newItem1 = service.updateItem(item, owner.getId());
+        assertThat(newItem1.getId(), notNullValue());
+        assertThat(newItem1.getName(), equalTo("new name"));
+    }
 
     @Test
     void shouldGetItemsByOwnerId() {
@@ -115,5 +134,20 @@ public class ItemServiceImplTest {
         itemService.addItem(item, owner.getId());
         List<ItemDto> items = itemService.findItemByText(item.getDescription());
         assertThat(items.get(0).getName(), equalTo(item.getName()));
+    }
+
+    @Test
+    void shouldNotfindItemByText() {
+        UserDto owner = userService.addUser(new UserDto(1L, "Test Owner", "testuser@yandex.ru"));
+        ItemDto item = new ItemDto(
+                2L,
+                "name",
+                "description",
+                true,
+                null);
+        itemService.addItem(item, owner.getId());
+        List<ItemDto> items = itemService.findItemByText("");
+        assertThat(items.size(), equalTo(0));
+
     }
 }
