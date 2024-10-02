@@ -183,4 +183,32 @@ class ItemControllerTest {
                 .andExpect(status().is4xxClientError());
     }
 
+    @Test
+    @DisplayName(value = "Поиск GET /items/")
+    void getItemsByOwnerId() throws Exception {
+        when(itemService.getItemsByOwnerId(1))
+                .thenReturn(List.of(itemDatesCommentsDto));
+
+        mvc.perform(get("/items")
+                        .header("X-Sharer-User-Id", 1L)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    void shouldUpdateItemsTest() throws Exception {
+        when(itemService.getItemById(1001, 1002L))
+                .thenReturn(itemDatesCommentsDto);
+
+        mvc.perform(patch("/items/{itemId}", 1001L)
+                        .content(mapper.writeValueAsString(itemDto))
+                        .header("X-Sharer-User-Id", 1002L)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful());
+    }
 }
