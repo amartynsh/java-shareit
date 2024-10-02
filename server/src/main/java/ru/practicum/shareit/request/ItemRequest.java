@@ -21,5 +21,6 @@ public class ItemRequest {
     String description;
     LocalDateTime created = LocalDateTime.now();
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id")
     User author;
 }

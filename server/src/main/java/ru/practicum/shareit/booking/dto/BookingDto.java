@@ -1,7 +1,5 @@
 package ru.practicum.shareit.booking.dto;
 
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.FutureOrPresent;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,8 +12,6 @@ import lombok.experimental.FieldDefaults;
 @Data
 public class BookingDto {
     long itemId;
-    @FutureOrPresent
     String start;
-    @Future
     String end;
 }

@@ -3,6 +3,7 @@ package ru.practicum.shareit.request;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemOwnerDto;
@@ -18,22 +19,24 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class ItemRequestServiceImpl {
+public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final ItemRequestRepository itemRequestRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
 
 
+    @Override
     public ItemRequestResponseDto createRequest(ItemRequestDto itemRequestDto, long authorId) {
-        User author = userRepository.findById(authorId).get();
+        User author = userRepository.findById(authorId).orElseThrow(() ->
+                new NotFoundException("Пользователь ID = " + authorId + " не найден"));
         ItemRequest itemRequest = ItemRequestMapper.toItemRequest(itemRequestDto, author);
-        userRepository.findById(authorId).get();
         ItemRequestResponseDto itemRequestResponseDto = ItemRequestMapper.toItemRequestResponseDto(itemRequestRepository.save(itemRequest));
         log.info("Сохранили itemRequestResponseDto = {}", itemRequestResponseDto);
         return itemRequestResponseDto;
     }
 
+    @Override
     public List<ItemRequestResponseOwnerDto> getRequestByAuthorId(long authorId) {
         log.info("Начало обработки запроса getRequestByAuthorId = {}", authorId);
         List<ItemRequest> itemRequests = itemRequestRepository.findByAuthorIdOrderByCreatedDesc(authorId);
@@ -42,6 +45,7 @@ public class ItemRequestServiceImpl {
         return itemRequests.stream().map(this::getItemRequestsResponseWithAnswers).toList();
     }
 
+    @Override
     public ItemRequestResponseOwnerDto getRequestById(long rquestId) {
         log.info("Начало обработки запроса getRequestById = {}", rquestId);
         ItemRequest itemRequests = itemRequestRepository.findById(rquestId).get();
@@ -49,13 +53,12 @@ public class ItemRequestServiceImpl {
         return getItemRequestsResponseWithAnswers(itemRequests);
     }
 
-
     private ItemRequestResponseOwnerDto getItemRequestsResponseWithAnswers(ItemRequest itemRequest) {
 
         List<ItemOwnerDto> itemResponses = itemRepository.findItemsByRequestId(itemRequest.getId()).stream()
                 .map(ItemMapper::toItemOwnerDto)
                 .toList();
-        log.info("Для ItemRequest = {} нашли ответы на запросы  {}", itemRequest.getId(), itemResponses);
+        ItemRequestServiceImpl.log.info("Для ItemRequest = {} нашли ответы на запросы  {}", itemRequest.getId(), itemResponses);
         ItemRequestResponseOwnerDto itemRequestResponse = ItemRequestMapper.toItemRequestResponseOwnerDto(itemRequest, itemResponses);
         return itemRequestResponse;
 
