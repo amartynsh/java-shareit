@@ -17,9 +17,11 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
@@ -107,5 +109,172 @@ class BookingServiceImplTest {
 
         bookingService.getBooking(result.getId(), booker.getId());
         assertThat(result.getBooker().getId(), equalTo(booker.getId()));
+    }
+
+    @Test
+    void getBookingsByNonExistUserAndStateTest() {
+        assertThrows(NotFoundException.class, () -> bookingService.getBookingsByOwner(BookingRequestState.ALL, 11L));
+    }
+
+    @Test
+    void getBookingsByUserAndCurrentStateTest() {
+        UserDto owner = userService.addUser(new UserDto(0L,
+                "Test Owner",
+                "testuser@yandex.ru")
+        );
+        UserDto booker = userService.addUser(new UserDto(0L,
+                "Test Booker",
+                "testuser123@yandex.ru"));
+        ItemDto item = new ItemDto(
+                0L,
+                "name",
+                "description",
+                true,
+                null);
+
+        ItemDto addedItem = itemService.addItem(item, owner.getId());
+        BookingDto bookingRequestDto = new BookingDto(addedItem.getId(), LocalDateTime.now().plusHours(1).toString(),
+                LocalDateTime.now().plusHours(10).toString());
+        BookingDto bookingRequestDto2 = new BookingDto(addedItem.getId(), LocalDateTime.now().minusDays(2).toString(),
+                LocalDateTime.now().minusDays(1).toString());
+        bookingService.newBooking(bookingRequestDto, booker.getId());
+        bookingService.newBooking(bookingRequestDto2, booker.getId());
+        List<Booking> result = bookingService.getBookingsByStatus(booker.getId(), BookingRequestState.CURRENT).stream().toList();
+        assertThat(result, hasSize(0));
+    }
+
+    @Test
+    void getBookingsByUserAndAllStateTest() {
+        UserDto owner = userService.addUser(new UserDto(0L,
+                "Test Owner",
+                "testuser@yandex.ru")
+        );
+        UserDto booker = userService.addUser(new UserDto(0L,
+                "Test Booker",
+                "testuser123@yandex.ru"));
+        ItemDto item = new ItemDto(
+                0L,
+                "name",
+                "description",
+                true,
+                null);
+
+        ItemDto addedItem = itemService.addItem(item, owner.getId());
+        BookingDto bookingRequestDto = new BookingDto(addedItem.getId(), LocalDateTime.now().plusHours(1).toString(),
+                LocalDateTime.now().plusHours(10).toString());
+        BookingDto bookingRequestDto2 = new BookingDto(addedItem.getId(), LocalDateTime.now().minusDays(2).toString(),
+                LocalDateTime.now().minusDays(1).toString());
+        bookingService.newBooking(bookingRequestDto, booker.getId());
+        bookingService.newBooking(bookingRequestDto2, booker.getId());
+        List<Booking> result = bookingService.getBookingsByStatus(booker.getId(), BookingRequestState.ALL).stream().toList();
+        assertThat(result, hasSize(2));
+    }
+
+    @Test
+    void getBookingsByUserAndWAITINGStateTest() {
+        UserDto owner = userService.addUser(new UserDto(0L,
+                "Test Owner",
+                "testuser@yandex.ru")
+        );
+        UserDto booker = userService.addUser(new UserDto(0L,
+                "Test Booker",
+                "testuser123@yandex.ru"));
+        ItemDto item = new ItemDto(
+                0L,
+                "name",
+                "description",
+                true,
+                null);
+
+        ItemDto addedItem = itemService.addItem(item, owner.getId());
+        BookingDto bookingRequestDto = new BookingDto(addedItem.getId(), LocalDateTime.now().plusHours(1).toString(),
+                LocalDateTime.now().plusHours(10).toString());
+        BookingDto bookingRequestDto2 = new BookingDto(addedItem.getId(), LocalDateTime.now().minusDays(2).toString(),
+                LocalDateTime.now().minusDays(1).toString());
+        bookingService.newBooking(bookingRequestDto, booker.getId());
+        bookingService.newBooking(bookingRequestDto2, booker.getId());
+        List<Booking> result = bookingService.getBookingsByStatus(booker.getId(), BookingRequestState.WAITING).stream().toList();
+        assertThat(result, hasSize(2));
+    }
+
+    @Test
+    void getBookingsByUserAndREJECTEDStateTest() {
+        UserDto owner = userService.addUser(new UserDto(0L,
+                "Test Owner",
+                "testuser@yandex.ru")
+        );
+        UserDto booker = userService.addUser(new UserDto(0L,
+                "Test Booker",
+                "testuser123@yandex.ru"));
+        ItemDto item = new ItemDto(
+                0L,
+                "name",
+                "description",
+                true,
+                null);
+
+        ItemDto addedItem = itemService.addItem(item, owner.getId());
+        BookingDto bookingRequestDto = new BookingDto(addedItem.getId(), LocalDateTime.now().plusHours(1).toString(),
+                LocalDateTime.now().plusHours(10).toString());
+        BookingDto bookingRequestDto2 = new BookingDto(addedItem.getId(), LocalDateTime.now().minusDays(2).toString(),
+                LocalDateTime.now().minusDays(1).toString());
+        bookingService.newBooking(bookingRequestDto, booker.getId());
+        bookingService.newBooking(bookingRequestDto2, booker.getId());
+        List<Booking> result = bookingService.getBookingsByStatus(booker.getId(), BookingRequestState.REJECTED).stream().toList();
+        assertThat(result, hasSize(0));
+    }
+
+    @Test
+    void getBookingsByUserAndFutureStateTest() {
+        UserDto owner = userService.addUser(new UserDto(0L,
+                "Test Owner",
+                "testuser@yandex.ru")
+        );
+        UserDto booker = userService.addUser(new UserDto(0L,
+                "Test Booker",
+                "testuser123@yandex.ru"));
+        ItemDto item = new ItemDto(
+                0L,
+                "name",
+                "description",
+                true,
+                null);
+
+        ItemDto addedItem = itemService.addItem(item, owner.getId());
+        BookingDto bookingRequestDto = new BookingDto(addedItem.getId(), LocalDateTime.now().plusHours(1).toString(),
+                LocalDateTime.now().plusHours(10).toString());
+        BookingDto bookingRequestDto2 = new BookingDto(addedItem.getId(), LocalDateTime.now().minusDays(2).toString(),
+                LocalDateTime.now().minusDays(1).toString());
+        bookingService.newBooking(bookingRequestDto, booker.getId());
+        bookingService.newBooking(bookingRequestDto2, booker.getId());
+        List<Booking> result = bookingService.getBookingsByStatus(booker.getId(), BookingRequestState.FUTURE).stream().toList();
+        assertThat(result, hasSize(1));
+    }
+
+    @Test
+    void getBookingsByUserAndPastStateTest() {
+        UserDto owner = userService.addUser(new UserDto(0L,
+                "Test Owner",
+                "testuser@yandex.ru")
+        );
+        UserDto booker = userService.addUser(new UserDto(0L,
+                "Test Booker",
+                "testuser123@yandex.ru"));
+        ItemDto item = new ItemDto(
+                0L,
+                "name",
+                "description",
+                true,
+                null);
+
+        ItemDto addedItem = itemService.addItem(item, owner.getId());
+        BookingDto bookingRequestDto = new BookingDto(addedItem.getId(), LocalDateTime.now().plusHours(1).toString(),
+                LocalDateTime.now().plusHours(10).toString());
+        BookingDto bookingRequestDto2 = new BookingDto(addedItem.getId(), LocalDateTime.now().minusDays(2).toString(),
+                LocalDateTime.now().minusDays(1).toString());
+        bookingService.newBooking(bookingRequestDto, booker.getId());
+        bookingService.newBooking(bookingRequestDto2, booker.getId());
+        List<Booking> result = bookingService.getBookingsByStatus(booker.getId(), BookingRequestState.PAST).stream().toList();
+        assertThat(result, hasSize(1));
     }
 }
