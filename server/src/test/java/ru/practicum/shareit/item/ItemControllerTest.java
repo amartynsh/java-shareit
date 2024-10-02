@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.practicum.shareit.exceptions.ExceptionsHandler;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
@@ -53,6 +54,7 @@ class ItemControllerTest {
     void setUp() {
         mvc = MockMvcBuilders
                 .standaloneSetup(controller)
+                .setControllerAdvice(new ExceptionsHandler())
                 .build();
 
         itemDto = new ItemDto(1002L, "Test Name", "Test Description", true, null);
@@ -161,4 +163,24 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(commentResponseDto.getId()), Long.class));
     }
+
+    @Test
+    void shoulBeBadRequest() throws Exception {
+        mvc.perform(post("/item", 1L)
+                        .content(mapper.writeValueAsString(commentRequestDto))
+                        .header("X-Sharer-User-Id", 1L)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+
+        mvc.perform(post("/items/", "test")
+                        .content(mapper.writeValueAsString(null))
+                        .header("X-Sharer-User-Id", 1L)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+    }
+
 }

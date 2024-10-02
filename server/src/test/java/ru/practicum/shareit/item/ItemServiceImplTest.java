@@ -28,8 +28,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -85,21 +83,40 @@ public class ItemServiceImplTest {
 
     @Test
     void shouldUpdateItem() {
-
         ItemDto newItem = itemService.addItem(item, owner.getId());
-        item.setName("new name");
-        ItemService service = mock(ItemServiceImpl.class);
-        when(service.updateItem(item, owner.getId()))
-                .thenReturn(item);
+        newItem.setName("new name");
+        ItemDto newItemUpdated = itemService.updateItem(newItem, owner.getId());
+        assertThat(newItemUpdated.getId(), notNullValue());
+        assertThat(newItemUpdated.getName(), equalTo("new name"));
+    }
 
-        ItemDto newItem1 = service.updateItem(item, owner.getId());
-        assertThat(newItem1.getId(), notNullValue());
-        assertThat(newItem1.getName(), equalTo("new name"));
+    @Test
+    void shouldUpdateItemAndFillLostName() {
+        ItemDto newItem = itemService.addItem(item, owner.getId());
+        newItem.setName(null);
+        newItem.setDescription(null);
+        newItem.setAvailable(null);
+        ItemDto newItemUpdated = itemService.updateItem(newItem, owner.getId());
+        assertThat(newItemUpdated.getId(), notNullValue());
+        assertThat(newItemUpdated.getName(), equalTo("name"));
+        assertThat(newItemUpdated.getDescription(), equalTo(item.getDescription()));
+        assertThat(newItemUpdated.getAvailable(), equalTo(item.getAvailable()));
+
+
+    }
+
+    @Test
+    void shouldNotUpdateItem() {
+        UserDto requestor = userService.addUser(new UserDto(0L,
+                "Test Owner",
+                "testrequester@yandex.ru"));
+        ItemDto newItem = itemService.addItem(item, owner.getId());
+        newItem.setName("new name");
+        assertThrows(ValidationException.class, () -> itemService.updateItem(newItem, requestor.getId()));
     }
 
     @Test
     void shouldGetItemsByOwnerId() {
-
         ItemDto savedItem = itemService.addItem(item, owner.getId());
         TypedQuery<Item> queryItem = em.createQuery("Select u from Item u where u.id = :id", Item.class);
         Item result = queryItem.setParameter("id", savedItem.getId())
@@ -172,4 +189,13 @@ public class ItemServiceImplTest {
                 LocalDateTime.now());
         CommentMapper.toCommentResponseDto(comment);
     }
+
+    @Test
+    void shouldGetItemsByOwner() {
+        itemService.addItem(item, owner.getId());
+        List<ItemDatesCommentsDto> items = itemService.getItemsByOwnerId(owner.getId());
+        assertThat(items.size(), equalTo(1));
+    }
+
+
 }

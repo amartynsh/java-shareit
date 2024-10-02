@@ -69,7 +69,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDatesCommentsDto> getItemsByOwnerId(long id) {
-
         return itemRepository.findItemsByOwnerId(id).stream()
                 .map(this::getItemByIdForOwner)
                 .toList();
@@ -107,7 +106,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void fillLostValues(Item item) {
-        Item itemToUpdate = getItemByIdInternal(item.getId());
+        Item itemToUpdate =  itemRepository.getReferenceById(item.getId());
         if (item.getName() == null) {
             item.setName(itemToUpdate.getName());
         }
@@ -144,9 +143,5 @@ public class ItemServiceImpl implements ItemService {
             throw new ValidationException("Владелец предмета" + itemExisting.getOwner() + " и пользователя" +
                     item.getOwner() + " не совпадают");
         }
-    }
-
-    private Item getItemByIdInternal(long id) {
-        return itemRepository.getReferenceById(id);
     }
 }

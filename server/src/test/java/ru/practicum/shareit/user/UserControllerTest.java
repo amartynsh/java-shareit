@@ -11,6 +11,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.practicum.shareit.exceptions.DublicateException;
+import ru.practicum.shareit.exceptions.ExceptionsHandler;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.nio.charset.StandardCharsets;
@@ -36,6 +39,7 @@ class UserControllerTest {
     void setUp() {
         mvc = MockMvcBuilders
                 .standaloneSetup(controller)
+                .setControllerAdvice(new ExceptionsHandler())
                 .build();
 
         userDto = new UserDto(
@@ -103,5 +107,28 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    void exceptionNotFoundShouldBeThrown() throws Exception {
+        when(userService.getById(1001L))
+                .thenThrow(NotFoundException.class);
+        mvc.perform(get("/users/{userId}", 1001L)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void exceptionBadRequestShouldBeThrown() throws Exception {
+
+        when(userService.getById(1001L))
+                .thenThrow(DublicateException.class);
+        mvc.perform(get("/users/{userId}", 1001L)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
     }
 }
